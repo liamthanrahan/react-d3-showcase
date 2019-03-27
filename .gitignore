@@ -1,0 +1,14 @@
+dist
+node_modules
+.DS_Store
+coverage
+npm-debug.log
+tmp/*
+!tmp/.gitkeep
+*.recover
+*/.terraform/*
+terraform.tfstate
+terraform.tfstate.d
+terraform.tfstate.backup
+*.tfvars
+.env
