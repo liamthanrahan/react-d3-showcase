@@ -41,7 +41,7 @@ const colors = {
 
 const formatTime = timeFormat('%d/%m/%Y %I:%M%p')
 
-// const t = transition().duration(750)
+const t = transition().duration(750)
 
 class LineChart extends Component {
   static propTypes = {
@@ -57,6 +57,7 @@ class LineChart extends Component {
     ticks: 10,
     prefixSpec: '~s',
     prefixVal: 1e6,
+    // setDateRange: () => null,
   }
   componentDidMount() {
     const {
@@ -66,8 +67,6 @@ class LineChart extends Component {
       prefixSpec,
       prefixVal,
     } = this.props
-    // console.log('Mount Line Chart', this.props)
-
     const width = containerWidth - margin.left - margin.right
     const height = containerHeight - margin.top - margin.bottom
 
@@ -130,7 +129,7 @@ class LineChart extends Component {
       .append('g')
       .attr('class', 'x-axis')
       .attr('transform', `translate(${margin.left},${height - margin.bottom})`)
-    // .call(this.xAxis)
+      .call(this.xAxis)
 
     this.yAxis = axisLeft(this.y)
       .ticks(ticks / 2)
@@ -139,7 +138,7 @@ class LineChart extends Component {
       .append('g')
       .attr('class', 'y-axis')
       .attr('transform', `translate(${margin.left},${margin.top})`)
-    // .call(this.yAxis)
+      .call(this.yAxis)
 
     this.yAxisLabel = svg
       .append('text')
@@ -190,7 +189,10 @@ class LineChart extends Component {
       data,
       dateRange,
     } = this.props
-    // console.log('Update Line Chart', this.props)
+
+    const svg = select(this.svg)
+    // Cancel all existing transitions
+    svg.selectAll('*').interrupt()
 
     const width = containerWidth - margin.left - margin.right
     const height = containerHeight - margin.top - margin.bottom
@@ -198,8 +200,6 @@ class LineChart extends Component {
     this.y.range([height, 0])
 
     this.brush.extent([[0, 0], [width, height]])
-
-    const svg = select(this.svg)
 
     this.background
       .attr('width', containerWidth)
@@ -224,13 +224,13 @@ class LineChart extends Component {
 
     this.xAxis.scale(this.x)
     this.xAxisEl
-      // .transition(t)
+      .transition(t)
       .attr('transform', `translate(${margin.left},${height + margin.top})`)
       .call(this.xAxis)
 
     this.yAxis.scale(this.y)
     this.yAxisEl
-      // .transition(t)
+      .transition(t)
       .attr('transform', `translate(${margin.left},${margin.top})`)
       .call(this.yAxis)
 
@@ -275,9 +275,7 @@ class LineChart extends Component {
       .selectAll('path')
       .data(data.series)
 
-    lines
-      // .transition(t)
-      .attr('d', d => this.line(d.values))
+    lines.transition(t).attr('d', d => this.line(d.values))
 
     lines
       .enter()
@@ -430,16 +428,12 @@ class LineChart extends Component {
   }
 
   zoom = () => {
-    this.xAxisEl
-      // .transition(t)
-      .call(this.xAxis)
-    this.yAxisEl
-      // .transition(t)
-      .call(this.yAxis)
+    this.xAxisEl.transition(t).call(this.xAxis)
+    this.yAxisEl.transition(t).call(this.yAxis)
     select(this.svg)
       .select('.lines')
       .selectAll('path')
-      // .transition(t)
+      .transition(t)
       .attr('d', d => this.line(d.values))
   }
 
@@ -449,7 +443,6 @@ class LineChart extends Component {
 
   render() {
     const { width, height, data } = this.props
-    // console.log('Render Line Chart', this.props)
     return <svg width={width} height={height} ref={d => (this.svg = d)} />
   }
 }
